@@ -1,0 +1,25 @@
+networks:
+  backend:
+    name: backend
+    attachable: true
+
+services:
+
+  extract-api:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extract:${EXTRACT_RELEASE:-local}
+    networks:
+      backend:
+
+  extract-worker:
+    depends_on:
+      - redis
+    environment:
+      BROKER_URL: redis://redis:6379/0
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extract:${EXTRACT_RELEASE:-local}
+    networks:
+      backend:
+
+  redis:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
+    networks:
+      backend:

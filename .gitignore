@@ -1,0 +1,11 @@
+.*_cache
+*.egg-info
+*.env
+*.ipynb
+*.ipynb_checkpoints
+*.pyc
+__pycache__
+.python-version
+.venv
+compose.override.yaml
+data/
