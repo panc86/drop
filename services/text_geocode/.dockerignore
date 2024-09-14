@@ -1,0 +1,2 @@
+./src/geocode/data/
+!./src/geocode/data/gazetteer.json.zip

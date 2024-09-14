@@ -5,21 +5,38 @@ networks:
 
 services:
 
-  extract-api:
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extract:${EXTRACT_RELEASE:-local}
+  text-annotation-api:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/services/text-annotation:${TEXT_ANNOTATION_RELEASE:-local}
     networks:
       backend:
 
-  extract-worker:
+  text-geocode-api:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/services/text-geocode:${TEXT_GEOCODE_RELEASE:-local}
+    networks:
+      backend:
+
+  extraction-api:
     depends_on:
-      - redis
-    environment:
-      BROKER_URL: redis://redis:6379/0
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extract:${EXTRACT_RELEASE:-local}
+      - elasticsearch
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/services/extraction-api:${EXTRACTION_API_RELEASE:-local}
     networks:
       backend:
 
-  redis:
-    image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
+  extraction-worker:
+    depends_on:
+      - elasticsearch
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/services/extraction-worker:${EXTRACTION_WORKER_RELEASE:-local}
+    networks:
+      backend:
+
+  elasticsearch:
+    image: ${DOCKER_REGISTRY:-docker.elastic.co/elasticsearch}/elasticsearch:${ELASTIC_VERSION:-8.7.1}
+    networks:
+      backend:
+
+  kibana:
+    depends_on:
+      - elasticsearch
+    image: ${DOCKER_REGISTRY:-docker.elastic.co/kibana}/kibana:${ELASTIC_VERSION:-8.7.1}
     networks:
       backend:
