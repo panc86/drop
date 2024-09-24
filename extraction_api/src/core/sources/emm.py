@@ -24,9 +24,13 @@ def build_request_url(extraction: dict) -> str:
 
 
 def download_data(url: str) -> Iterable[dict[str, Any]]:
-    yield from pandas.read_xml(url, parser="etree", xpath=".//item").to_dict(
-        orient="records"
-    )
+    try:
+        xml_data = pandas.read_xml(url, parser="etree", xpath=".//item")
+    except ValueError:
+        print(url)
+        return []
+    else:
+        yield from xml_data.to_dict(orient="records")
 
 
 def yield_data_points(extraction: dict) -> Iterable[dict[str, Any]]:

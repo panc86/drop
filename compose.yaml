@@ -10,6 +10,11 @@ services:
     networks:
       backend:
 
+  extraction-worker:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extraction-api:${EXTRACTION_API_RELEASE:-local}
+    networks:
+      backend:
+
   text-annotator:
     image: ${DOCKER_REGISTRY:-index.docker.io}/drop/transformers/text-annotator:${TEXT_ANNOTATOR_RELEASE:-local}
     networks:
@@ -20,6 +25,16 @@ services:
     networks:
       backend:
   
+  redis:
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
+    networks:
+      backend:
+
   zookeeper:
     image: ${DOCKER_REGISTRY:-index.docker.io}/confluentinc/cp-zookeeper:7.4.0
     hostname: zookeeper
