@@ -2,9 +2,7 @@
 set -e
 
 CWD=$(cd $(dirname $0); pwd)
-
-REGISTRY=${REGISTRY:-index.docker.io}
-IMAGE=${REGISTRY}/drop/transformers/text-annotator:${1:-local}
+IMAGE=${DOCKER_REGISTRY:-index.docker.io}/drop/transformers/text-annotator:${1:-local}
 
 echo Building $IMAGE
 docker build \
@@ -12,7 +10,7 @@ docker build \
     --rm=true \
     -f "$CWD/Dockerfile" \
     --platform linux/amd64 \
-    --build-arg REGISTRY=$REGISTRY \
+    --build-arg REGISTRY=${DOCKER_REGISTRY:-index.docker.io} \
     --build-arg http_proxy=${http_proxy:-} \
     --build-arg https_proxy=${https_proxy:-} \
     -t $IMAGE \
