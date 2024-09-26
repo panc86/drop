@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from core.sources import emm
+from api.sources import emm
 
 
 def test_build_request_url():

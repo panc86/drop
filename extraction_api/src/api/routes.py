@@ -1,8 +1,7 @@
 from flask import Flask, request
 from pydantic import ValidationError
 
-from core import models
-from core.tasks import add_extraction_to_task_queue
+from api import models, worker
 
 
 app = Flask(__name__)
@@ -18,12 +17,25 @@ def ping_api():
     return "pong", 200
 
 
+@app.route("/jobs/<job_id>", methods=["GET"])
+def get_job(job_id: str):
+    job = worker.get_job(job_id)
+    if not job:
+        return job_id, 404
+    return dict(
+        id=job.id,
+        args=job.args,
+        status=job.get_status(refresh=True),
+        last_update=job.last_heartbeat,
+    ), 200
+
+
 @app.route("/emm/", methods=["POST"])
-def stream_data_points():
+def stream_events():
     try:
         extraction = dict(models.Extraction(**request.json))
     except ValidationError as error:
         return error.json(), 400
     else:
-        job = add_extraction_to_task_queue(extraction)
-        return dict(job_id=job.id, extraction=extraction), 201
+        job = worker.to_work_queue(extraction)
+        return dict(extraction=extraction, task_url=f"/jobs/{job.id}"), 202

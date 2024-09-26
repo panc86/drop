@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from pydantic import ValidationError
 import pytest
 
-from core.models import Extraction
+from api.models import Extraction
 
 
 def test_valid_extraction_is_created_successfully():

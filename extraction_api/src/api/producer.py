@@ -29,8 +29,7 @@ def serialize_event(event: dict) -> bytes:
             )
 
 
-def publish_events(events, topic: str, config: dict = default_config):
-    # Create Producer instance
+def publish_events(events: list[dict], topic: str, config: dict = default_config):
     producer = Producer(config)
     # Optional per-message delivery callback (triggered by poll() or flush())
     # when a message has been successfully delivered or permanently
