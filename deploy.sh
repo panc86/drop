@@ -19,4 +19,5 @@ bash $CWD/transformers/text_annotator/build/build_image.sh $TEXT_ANNOTATOR_RELEA
 bash $CWD/transformers/text_geocoder/build/build_image.sh $TEXT_GEOCODER_RELEASE
 
 # run app
-docker compose up --detach
+# docker network create --driver overlay backend
+docker stack deploy --detach=false -c compose.yaml -c compose.staging.yaml drop; echo
