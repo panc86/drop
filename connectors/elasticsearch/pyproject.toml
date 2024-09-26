@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "development"
+version = "0.1.0"
+description = "Development pyenv"
+authors = ["Panizem <Emanuele.PANIZIO@ext.ec.europa.eu>"]
+
+[tool.poetry.dependencies]
+confluent-kafka = "^2.5.3"
+pytest = "^7.0.0"
+python = "~3.10"
+requests = "^2.32.3"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
