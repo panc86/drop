@@ -84,7 +84,7 @@ def match_geo_political_entities(
             ]
         )
     # filter gazetteer by most common
-    if not countries and not regions:
+    if not countries or not regions:
         return
 
     # get most common
@@ -116,51 +116,4 @@ def match_geo_political_entities(
             if cities_.city_name.any()
             else regions_.to_dict(orient="records")
         )
-    return result
-
-
-#import numpy
-#def distance(s_lat, s_lng, e_lat, e_lng):
-#    # approximate radius of earth in km
-#    R = 6373.8
-#    s_lat = s_lat * numpy.pi / 180.0
-#    s_lng = numpy.deg2rad(s_lng)
-#    e_lat = numpy.deg2rad(e_lat)
-#    e_lng = numpy.deg2rad(e_lng)
-#    d = (
-#        numpy.sin((e_lat - s_lat) / 2) ** 2
-#        + numpy.cos(s_lat) * numpy.cos(e_lat) * numpy.sin((e_lng - s_lng) / 2) ** 2
-#    )
-#    return 2 * R * numpy.arcsin(numpy.sqrt(d))
-#
-#
-#def filter_places_by_buffer(
-#    gazetteer: pandas.DataFrame,
-#    latitude: float,
-#    longitude: float,
-#    radius: int = 100,
-#) -> pandas.DataFrame:
-#    # get places within a given buffer
-#    g = gazetteer.loc[
-#        distance(gazetteer.latitude, gazetteer.longitude, latitude, longitude)
-#        <= radius,
-#        :,
-#    ]
-#    if g.empty:
-#        raise OutOfBoundError("No places found within the given buffer")
-#    return g.copy()
-#
-#
-#def filter_places_by_bounding_box(
-#    gazetteer: pandas.DataFrame,
-#    bbox: str,
-#) -> pandas.DataFrame:
-#    minx, miny, maxx, maxy = map(float, bbox.split(","))
-#    g = gazetteer.loc[
-#        gazetteer.latitude.between(miny, maxy)
-#        & gazetteer.longitude.between(minx, maxx),
-#        :,
-#    ]
-#    if g.empty:
-#        raise OutOfBoundError("No places found within the given bounding box")
-#    return g.copy()
+    return result or None
