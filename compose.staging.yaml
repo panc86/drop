@@ -18,6 +18,8 @@ services:
         limits:
           cpus: '1'
           memory: 512m
+    environment:
+      KAFKA_BROKER_URL: broker:29092
     healthcheck:
       test: ['CMD', 'rq', 'info', '--url', 'redis://redis:6379/0']
       interval: 30s
@@ -25,10 +27,14 @@ services:
       retries: 3
 
   text-annotator:
+    environment:
+      KAFKA_BROKER_URL: broker:29092
     volumes:
       - annotation-db:/usr/src/app/src/core/data
 
   text-geocoder:
+    environment:
+      KAFKA_BROKER_URL: broker:29092
     volumes:
       - geocode-db:/usr/src/app/src/core/data
 
@@ -109,6 +115,13 @@ services:
       retries: 5
     ports:
       - 5601:5601
+
+  logstash:
+    command: logstash -f /usr/share/logstash/pipeline/logstash.conf
+    environment:
+      - xpack.monitoring.enabled=false
+    volumes:
+      - ./config/logstash/pipeline/:/usr/share/logstash/pipeline/
 
 volumes:
   annotation-db:

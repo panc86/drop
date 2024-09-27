@@ -59,3 +59,10 @@ services:
     image: ${DOCKER_REGISTRY:-docker.elastic.co/kibana}/kibana:8.7.1
     networks:
       backend:
+  
+  logstash:
+    depends_on:
+      - elasticsearch
+    image: ${DOCKER_REGISTRY:-docker.elastic.co/logstash}/logstash:8.7.1
+    networks:
+      backend:
