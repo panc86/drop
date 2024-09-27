@@ -29,5 +29,5 @@ jobs:
           python -m poetry install --directory ./pipeline/extraction_api --no-root --only main
       - name: Run Extraction API Tests
         run: |
-          cd extraction_api
+          cd pipeline/extraction_api
           .venv/bin/python -m pytest --disable-warnings --verbose
