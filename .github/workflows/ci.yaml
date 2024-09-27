@@ -26,7 +26,7 @@ jobs:
           python -m poetry config virtualenvs.in-project true
       - name: Install Extraction API Dependencies
         run: |
-          python -m poetry install --directory extraction_api --no-root --only main
+          python -m poetry install --directory ./pipeline/extraction_api --no-root --only main
       - name: Run Extraction API Tests
         run: |
           cd extraction_api
