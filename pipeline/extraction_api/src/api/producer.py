@@ -5,12 +5,9 @@ import os
 from confluent_kafka import Producer
 
 
-IS_DOCKER_ENV = os.path.exists("/.dockerenv")
-
-
 default_config = {
     # User-specific properties that you must set
-    "bootstrap.servers": "broker:29092" if IS_DOCKER_ENV else "localhost:9092",
+    "bootstrap.servers": os.environ.get("KAFKA_BROKER_URL", "localhost:9092"),
     # Fixed properties
     "acks": "all",
 }
