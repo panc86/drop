@@ -30,14 +30,14 @@ def delivery_callback(error, event):
     print(dict(topic=event.topic(), event=event.value(), error=error))
 
 
-def publish_geocoded_events(events):
+def publish_geocoded_events(events, topic: str = "geocoded_texts"):
     producer = Producer({
         "bootstrap.servers": KAFKA_BROKER_URL,
         "acks": "all",
     })
     for event in events:
         producer.produce(
-            topic="geocoded_texts",
+            topic=topic,
             value=serialize_event(event),
             callback=delivery_callback,
         )
@@ -81,6 +81,8 @@ def consume_raw_events():
 
 
 if __name__ == '__main__':
-    #probes = [dict(text="probe test no {}".format(n), annotation=dict(impact=0.64, flood=0.87)) for n in range(10)]
-    #publish_events(probes, "annotated_texts")
+    import sys
+    if sys.argv[1] == "--probe":
+        probes = [dict(text="probe test no {}".format(n), annotation=dict(impact=0.64, flood=0.87)) for n in range(10)]
+        publish_geocoded_events(probes, "annotated_texts")
     consume_raw_events()
