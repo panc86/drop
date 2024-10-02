@@ -1,2 +1,1 @@
-./src/annotation/data/
-!./src/annotation/data/*.h5
+./src/core/embeddings/

@@ -5,7 +5,7 @@ from typing import Any
 
 from confluent_kafka import Consumer, Producer
 
-from core import model
+from core import annotator
 
 
 KAFKA_BROKER_URL = os.environ.get("KAFKA_BROKER_URL", "localhost:9092")
@@ -49,7 +49,7 @@ def consume_raw_events():
     "auto.offset.reset": "earliest",
 })
     # model prediction is computationally expensive and should be executed in batches
-    annotator = model.get_annotator()
+    model = annotator.get_model()
     batch = []
     try:
         consumer.subscribe(["raw_texts"])
@@ -57,7 +57,7 @@ def consume_raw_events():
             msg = consumer.poll(1.0)
             if msg is None:
                 if len(batch) > 0:
-                    publish_annotated_events(annotator(batch))
+                    publish_annotated_events(model(batch))
                     print(f"processed {len(batch)} events...")
                     batch = []
             elif msg.error():
@@ -65,7 +65,7 @@ def consume_raw_events():
             else:
                 batch.append(json.loads(msg.value().decode("utf-8")))
                 if len(batch) == 256:
-                    publish_annotated_events(annotator(batch))
+                    publish_annotated_events(model(batch))
                     print(f"processed {len(batch)} events...")
                     batch = []
     except KeyboardInterrupt:
@@ -78,7 +78,8 @@ def consume_raw_events():
 
 if __name__ == '__main__':
     import sys
-    if sys.argv[1] == "--probe":
+    args = sys.argv[:1]
+    if args and args[0] == "--probe":
         probes = [dict(id=n * 100, text="probe test no {}".format(n)) for n in range(10)]
         publish_annotated_events(probes, "raw_texts")
     consume_raw_events()

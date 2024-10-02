@@ -4,7 +4,8 @@ import os
 from core.cleaner import clean_text
 
 
-models_dir = os.path.join(os.path.dirname(__file__), "data")
+embeddings_dir = os.path.join(os.path.dirname(__file__), "data")
+models_dir = os.path.join(os.path.dirname(__file__), "models")
 
 
 def merge_predictions(original: list[dict], impacts: list[float], floods: list[float]):
@@ -14,14 +15,14 @@ def merge_predictions(original: list[dict], impacts: list[float], floods: list[f
     ]
 
 
-def get_annotator():
+def get_model():
     import laserembeddings
     import tensorflow as tf
 
     embeddings = laserembeddings.Laser(
-        bpe_codes=os.path.join(models_dir, "93langs.fcodes"),
-        bpe_vocab=os.path.join(models_dir, "93langs.fvocab"),
-        encoder=os.path.join(models_dir, "bilstm.93langs.2018-12-26.pt"),
+        bpe_codes=os.path.join(embeddings_dir, "93langs.fcodes"),
+        bpe_vocab=os.path.join(embeddings_dir, "93langs.fvocab"),
+        encoder=os.path.join(embeddings_dir, "bilstm.93langs.2018-12-26.pt"),
         embedding_options=dict(cpu=True),
     )
     impact_model = tf.keras.models.load_model(os.path.join(models_dir, "impacts.h5"))
