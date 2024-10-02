@@ -49,7 +49,7 @@ def publish_geocoded_events(events, topic: str = "geocoded_texts"):
 def consume_raw_events():
     consumer = Consumer({
     "bootstrap.servers": KAFKA_BROKER_URL,
-    "group.id": "annotation",
+    "group.id": "geocode",
     "auto.offset.reset": "earliest",
 })
     # model prediction is computationally expensive and should be executed in batches
