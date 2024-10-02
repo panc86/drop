@@ -7,6 +7,7 @@ MODELS_DIR=$CWD/core/data
 mkdir -p $MODELS_DIR
 
 # download BERT Multilingual NLP models from DeepPavlov repo
+python -m pip install --upgrade pip
 HOME=$MODELS_DIR python -m deeppavlov download -i ner_ontonotes_bert_mult
 
 # start service

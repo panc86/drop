@@ -6,7 +6,7 @@ import warnings
 
 from confluent_kafka import Consumer, Producer
 
-from core import model
+from core import geocoder
 
 # ignore warnings
 warnings.filterwarnings("ignore")
@@ -53,7 +53,7 @@ def consume_raw_events():
     "auto.offset.reset": "earliest",
 })
     # model prediction is computationally expensive and should be executed in batches
-    geocoder = model.get_geocoder()
+    model = geocoder.get_model()
     batch = []
     try:
         consumer.subscribe(["annotated_texts"])
@@ -61,7 +61,7 @@ def consume_raw_events():
             msg = consumer.poll(1.0)
             if msg is None:
                 if len(batch) > 0:
-                    publish_geocoded_events(geocoder(batch))
+                    publish_geocoded_events(model(batch))
                     print(f"processed {len(batch)} events...")
                     batch = []
             elif msg.error():
@@ -69,7 +69,7 @@ def consume_raw_events():
             else:
                 batch.append(json.loads(msg.value().decode("utf-8")))
                 if len(batch) == 256:
-                    publish_geocoded_events(geocoder(batch))
+                    publish_geocoded_events(model(batch))
                     print(f"processed {len(batch)} events...")
                     batch = []
     except KeyboardInterrupt:
@@ -82,7 +82,8 @@ def consume_raw_events():
 
 if __name__ == '__main__':
     import sys
-    if sys.argv[1] == "--probe":
+    args = sys.argv[:1]
+    if args and args[0] == "--probe":
         probes = [dict(text="probe test no {}".format(n), annotation=dict(impact=0.64, flood=0.87)) for n in range(10)]
         publish_geocoded_events(probes, "annotated_texts")
     consume_raw_events()

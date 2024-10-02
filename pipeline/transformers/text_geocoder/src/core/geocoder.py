@@ -18,7 +18,7 @@ def merge_geocodes(original: list[dict], tags_by_data_point: list[list[dict]], l
     ]
 
 
-def get_geocoder():
+def get_model():
     # initialize components
     bert_model = build_model("ner_ontonotes_bert_mult", download=False, install=False)
     gazetteer = load_gazetteer(config.gazetteer_filepath)
