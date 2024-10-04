@@ -19,7 +19,6 @@ if [ "$DEV" == "0" ]; then
     export EXTRACTION_API_RELEASE=$(get_release "$CWD/pipeline/extraction_api/pyproject.toml")
     export TEXT_ANNOTATOR_RELEASE=$(get_release "$CWD/pipeline/transformers/text_annotator/pyproject.toml")
     export TEXT_GEOCODER_RELEASE=$(get_release "$CWD/pipeline/transformers/text_geocoder/pyproject.toml")
-    export DOCKER_REGISTRY=localhost:8080
 fi
 
 
