@@ -1,6 +1,5 @@
 networks:
   backend:
-    external: true
     name: backend
 
 services:

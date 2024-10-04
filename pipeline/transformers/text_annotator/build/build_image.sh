@@ -15,3 +15,7 @@ docker build \
     --build-arg https_proxy=${https_proxy:-} \
     -t $IMAGE \
     "$CWD/.."
+
+if [ "$PUSH" == "1" ]; then
+    docker push $IMAGE
+fi
