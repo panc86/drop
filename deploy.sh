@@ -29,4 +29,5 @@ bash $CWD/pipeline/transformers/text_geocoder/build/build_image.sh $TEXT_GEOCODE
 
 
 # deploy app stack
-docker stack deploy --detach=false -c compose.yaml -c compose.staging.yaml drop
+ENV=$([ ${DEV} == "1" ] && echo override || echo staging)
+docker stack deploy --detach=false -c compose.yaml -c compose.${ENV}.yaml drop
