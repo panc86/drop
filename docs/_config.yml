@@ -1,0 +1,38 @@
+title: DROP
+description: Documentation
+baseurl: "/drop"
+url: "https://panc86.github.io"
+
+# versions
+drop_version: 0.1.0
+
+# Build settings
+markdown: kramdown
+exclude: 
+  - vendor
+  - Gemfile
+  - Gemfile.lock
+
+theme: just-the-docs
+color_scheme: dark # or light
+
+callouts_level: quiet # or loud
+callouts:
+  highlight:
+    color: yellow
+  important:
+    title: Important
+    color: purple
+  new:
+    title: New
+    color: green
+  note:
+    title: Note
+    color: blue
+  warning:
+    title: Warning
+    color: red
+
+# Back to top link
+back_to_top: true
+back_to_top_text: "Back to top"
