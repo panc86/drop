@@ -59,7 +59,7 @@ ENV TRANSFORMERS_VERBOSITY=error
 ENV TF_CPP_MIN_LOG_LEVELv=3
 
 # volume for annotation models
-VOLUME /usr/src/app/src/geocode/data 
+VOLUME /usr/src/app/src/core/data 
 
 ENTRYPOINT ["./src/entrypoint.sh"]
 CMD ["--help"]
