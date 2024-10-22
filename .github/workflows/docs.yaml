@@ -34,6 +34,7 @@ jobs:
         uses: actions/configure-pages@v2
       - name: Build Documentation with Jekyll
         run: |
+          cd ./docs
           # Install gems dependencies i.e. jekyll and just-the-docs theme
           bundle install
           # Outputs to the './_site' directory by default
