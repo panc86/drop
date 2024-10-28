@@ -4,44 +4,122 @@ networks:
 services:
 
   extraction-api:
+    command: uwsgi --chdir ./src --wsgi-file main.py --callable app --http :5000
     depends_on:
       - redis
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extraction-api:${EXTRACTION_API_RELEASE:-local}
+    healthcheck:
+      test: ['CMD-SHELL', 'timeout 5s bash -c ":> /dev/tcp/$${HOSTNAME}/5000"']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extraction-api:0.1.0
     networks:
       backend:
+    ports:
+      - 5000:5000
 
   extraction-worker:
+    command: rq worker --path ./src --url redis://redis:6379/0
     depends_on:
       - redis
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/extraction-api:${EXTRACTION_API_RELEASE:-local}
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_URL: broker:29092
+    healthcheck:
+      test: ['CMD', 'rq', 'info', '--url', 'redis://redis:6379/0']
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extraction-api:0.1.0
     networks:
       backend:
 
   text-annotator:
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/transformers/text-annotator:${TEXT_ANNOTATOR_RELEASE:-local}
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_URL: broker:29092
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-annotator:0.1.0
     networks:
       backend:
+    volumes:
+      - annotation-db:/usr/src/app/src/core/data
 
   text-geocoder:
-    image: ${DOCKER_REGISTRY:-index.docker.io}/drop/transformers/text-geocoder:${TEXT_GEOCODER_RELEASE:-local}
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_URL: broker:29092
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-geocoder:0.1.0
     networks:
       backend:
+    volumes:
+      - geocode-db:/usr/src/app/src/core/data
   
   redis:
+    environment:
+      REDIS_ARGS: --save 60 1000
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
     image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
     networks:
       backend:
+    volumes:
+      - redis-db:/data
 
   zookeeper:
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    healthcheck:
+      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     hostname: zookeeper
     image: ${DOCKER_REGISTRY:-index.docker.io}/confluentinc/cp-zookeeper:7.4.0
     networks:
       backend:
+    ports:
+      - 2181:2181
 
   broker:
     depends_on:
       - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://${KAFKA_BROKER_HOST:-localhost}:9092
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
+      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
+      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
+    healthcheck:
+      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     hostname: broker
     image: ${DOCKER_REGISTRY:-index.docker.io}/confluentinc/cp-server:7.4.0
     networks:
       backend:
+    ports:
+      - 9092:9092
+
+volumes:
+  annotation-db:
+    name: annotation-db
+  geocode-db:
+    name: geocode-db
+  redis-db:
+    name: redis-db

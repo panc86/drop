@@ -2,7 +2,8 @@
 set -e
 
 CWD=$(cd $(dirname $0); pwd)
-IMAGE=${DOCKER_REGISTRY:-index.docker.io}/drop/transformers/text-geocoder:${1:-local}
+REGISTRY="${DOCKER_REGISTRY:-index.docker.io}"
+IMAGE="${REGISTRY}/pipeline/transformers/text-annotator:$(<$CWD/src/RELEASE)"
 
 echo Building $IMAGE
 docker build \
@@ -10,12 +11,8 @@ docker build \
     --rm=true \
     -f "$CWD/Dockerfile" \
     --platform linux/amd64 \
-    --build-arg REGISTRY=${DOCKER_REGISTRY:-index.docker.io} \
     --build-arg http_proxy=${http_proxy:-} \
     --build-arg https_proxy=${https_proxy:-} \
+    --build-arg REGISTRY=$REGISTRY \
     -t $IMAGE \
-    "$CWD/.."
-
-if [ "$PUSH" == "1" ]; then
-    docker push $IMAGE
-fi
+    $CWD

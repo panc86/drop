@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "text_annotator"
-version = "0.1.0"
-description = "Consumes and publishes NLP annotations."
 authors = ["Panizem <Emanuele.PANIZIO@ext.ec.europa.eu>"]
+description = "Consumes and publishes NLP annotations."
 readme = "README.md"
+package-mode = false
 
 [tool.poetry.dependencies]
 confluent-kafka = "^2.5.3"
