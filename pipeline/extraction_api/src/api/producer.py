@@ -1,6 +1,7 @@
 from datetime import datetime
 import json
 import os
+from typing import Any, Iterable
 
 from confluent_kafka import Producer
 
@@ -26,7 +27,7 @@ def serialize_event(event: dict) -> bytes:
             )
 
 
-def publish_events(events: list[dict], topic: str, config: dict = default_config):
+def publish_events(events: Iterable[dict[str, Any]], topic: str, config: dict = default_config):
     producer = Producer(config)
     # Optional per-message delivery callback (triggered by poll() or flush())
     # when a message has been successfully delivered or permanently

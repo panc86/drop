@@ -29,9 +29,7 @@ def get_job(id: str) -> Job | None:
 
 
 def extract_data_points_from_sources(extraction: dict):
-    data_points = emm.yield_data_points(extraction)
-    publish_events([extraction], "extractions")
-    publish_events(data_points, "raw_texts")
+    publish_events(emm.yield_data_points(extraction), "raw_texts")
 
 
 def to_work_queue(extraction: dict) -> Job:
