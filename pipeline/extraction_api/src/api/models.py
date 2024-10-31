@@ -25,7 +25,6 @@ class Extraction(BaseModel):
     )
     keywords: str = Field(
         description="Comma separated list of keywords.",
-        min_length=3,
         examples=["Lombardia,Milano,Varese"],
     )
     begin: DateTime = Field(description="Data collection start date and time.")
