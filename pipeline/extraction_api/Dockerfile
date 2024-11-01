@@ -25,16 +25,16 @@ ENV POETRY_NO_INTERACTION=1
 ENV PATH="$POETRY_HOME/bin:$PATH"
 
 # install poetry
-RUN apt update && \
-    apt install -y --no-install-recommends curl
+RUN apt update; \
+    apt install -y --no-install-recommends curl; \
+    curl -sSL https://install.python-poetry.org | python3 - 
 
 # setup workspace
 WORKDIR /usr/src/app
 COPY pyproject.toml .
 
 # install virtual env
-RUN curl -sSL https://install.python-poetry.org | python3 - && \
-    poetry install --no-cache --compile --only main
+RUN poetry install --no-cache --compile --only main
 
 # copy source code
 COPY src ./src
