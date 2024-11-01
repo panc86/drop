@@ -26,6 +26,7 @@ def get_job(job_id: str):
         id=job.id,
         args=job.args,
         status=job.get_status(refresh=True),
+        error=job.exc_info,
         last_update=job.last_heartbeat,
     ), 200
 
