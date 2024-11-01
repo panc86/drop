@@ -1,22 +1,11 @@
 from datetime import datetime, timezone
-from typing import Any
-from typing_extensions import Annotated
 
-from pydantic import BaseModel, Field, model_validator
-from pydantic.functional_validators import AfterValidator
-
-
-def is_past_date(dt: datetime) -> datetime:
-    if dt > datetime.now(timezone.utc):
-        raise ValueError("datetime should be in the past")
-    return dt
-
-
-# EMM can handle historical searches only
-DateTime = Annotated[datetime, AfterValidator(is_past_date)]
+from pydantic import BaseModel, Field, field_validator, model_validator
 
 
 class Extraction(BaseModel):
+    """Represents the Extraction payload."""
+
     tag: str = Field(
         description="Data collection tag for grouping.",
         pattern="[a-zA-Z0-9-_]",
@@ -24,16 +13,25 @@ class Extraction(BaseModel):
         examples=["flood_lombardia_20240914"],
     )
     keywords: str = Field(
-        description="Comma separated list of keywords.",
+        description="Comma separated list of keywords.\nEmpty string disables keywords filter.",
         examples=["Lombardia,Milano,Varese"],
     )
-    begin: DateTime = Field(description="Data collection start date and time.")
-    end: DateTime = Field(description="Data collection end date and time.")
+    begin: datetime = Field(description="Extraction start date and time in ISO 8601.")
+    end: datetime = Field(description="Extraction end date and time in ISO 8601.")
 
     @model_validator(mode='before')
     @classmethod
-    def check_not_equal_datetime(cls, data: Any) -> Any:
+    def begin_lt_end(cls, data: dict) -> dict:
+        """Begin is lower than end."""
         if isinstance(data, dict):
-            if data["begin"] == data["end"]:
-                raise ValueError("dates cannot be equal")
-        return data
+            if data["begin"] >= data["end"]:
+                raise ValueError("begin must be lower than end.")
+            return data
+
+    @field_validator("end")
+    @classmethod
+    def end_le_now(cls, end: datetime) -> datetime:
+        """End is lower than or equal to now."""
+        if end > datetime.now(timezone.utc):
+            raise ValueError("end must be lower than or equal to now.")
+        return end

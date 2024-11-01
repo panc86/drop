@@ -23,7 +23,7 @@ def test_extraction_with_invalid_begin_fails():
             "tag": "test",
             "keywords": "test-keyword",
             "begin": now,
-            "end": now+timedelta(seconds=60),
+            "end": now+timedelta(seconds=5),
         })
 
 
@@ -33,6 +33,16 @@ def test_extraction_with_equal_begin_and_end_datetimes_fails():
         Extraction(**{
             "tag": "test",
             "keywords": "test-keyword",
-            "begin": now,
+            "begin": now+timedelta(seconds=5),
             "end": now,
+        })
+
+
+def test_extraction_keywords_null_is_not_allowed():
+    with pytest.raises(ValidationError):
+        Extraction(**{
+            "tag": "test",
+            "keywords": None,
+            "begin": datetime(2024, 9, 5, tzinfo=timezone.utc),
+            "end": datetime(2024, 9, 5, 23, 23, 59, tzinfo=timezone.utc),
         })
