@@ -1,3 +1,4 @@
+import json
 import os
 
 from redis import Redis
@@ -18,7 +19,8 @@ work_queue = Queue(connection=redis)
 
 
 def report_job_failure(job, connection, type, value, traceback):
-    print(dict(id=job.id, args=job.args, errors=value))
+    with open("/var/log/error.log", "a") as log:
+        log.write(json.dumps(dict(id=job.id, args=job.args, errors=value), ensure_ascii=False, default=str)+"\n")
 
 
 def get_job(id: str) -> Job | None:
@@ -28,14 +30,14 @@ def get_job(id: str) -> Job | None:
         pass
 
 
-def extract_data_points_from_sources(extraction: dict):
-    publish_events(emm.yield_data_points(extraction), "raw_texts")
+def extract_events_from_sources(extraction: dict):
+    publish_events(emm.yield_events(extraction), "raw_texts")
 
 
 def to_work_queue(extraction: dict) -> Job:
     return work_queue.enqueue(
-        extract_data_points_from_sources,
+        extract_events_from_sources,
         args=(extraction, ),
         on_failure=report_job_failure,
-        job_timeout="3m",
+        job_timeout="1m",
     )

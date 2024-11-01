@@ -5,6 +5,10 @@ import urllib.parse
 import pandas
 
 
+class EMMSourcingError(Exception):
+    pass
+
+
 def build_request_url(extraction: dict) -> str:
     date_format = "%Y-%m-%dT%H:%M:%SZ"
     url = "https://emm.newsbrief.eu/rss/rss?{params}"
@@ -23,25 +27,24 @@ def build_request_url(extraction: dict) -> str:
     )
 
 
-def download_data(url: str) -> Iterable[dict[str, Any]]:
+def download_events(url: str) -> Iterable[dict[str, Any]]:
     try:
-        xml_data = pandas.read_xml(url, parser="etree", xpath=".//item")
+        events = pandas.read_xml(url, parser="etree", xpath=".//item")
     except ValueError:
-        print(url)
-        return []
+        raise EMMSourcingError(f"failed to download events from {url}")
     else:
-        yield from xml_data.to_dict(orient="records")
+        yield from events.to_dict(orient="records")
 
 
-def yield_data_points(extraction: dict) -> Iterable[dict[str, Any]]:
-    for data_point in download_data(build_request_url(extraction)):
+def yield_events(extraction: dict) -> Iterable[dict[str, Any]]:
+    for event in download_events(build_request_url(extraction)):
         yield dict(
             extraction=extraction,
             created_at=datetime.strptime(
-                data_point["pubDate"], "%a, %d %b %Y %H:%M:%S %z"
+                event["pubDate"], "%a, %d %b %Y %H:%M:%S %z"
             ),
-            id=data_point["guid"],
-            text=data_point["title"],
-            url=data_point["link"],
+            id=event["guid"],
+            text=event["title"],
+            url=event["link"],
             source="emm",
         )
