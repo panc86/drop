@@ -19,7 +19,7 @@ services:
       - 5000:5000
 
   extraction-worker:
-    command: rq worker --path ./src --url redis://redis:6379/0
+    command: rq worker --path ./src --url redis://redis:6379/0 --with-scheduler
     depends_on:
       - redis
     environment:

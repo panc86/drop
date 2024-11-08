@@ -35,7 +35,8 @@ def extract_events_from_sources(extraction: dict):
 
 
 def to_work_queue(extraction: dict) -> Job:
-    return work_queue.enqueue(
+    return work_queue.enqueue_at(
+        extraction["end"],
         extract_events_from_sources,
         args=(extraction, ),
         on_failure=report_job_failure,

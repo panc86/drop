@@ -1,10 +1,10 @@
-from datetime import datetime, timezone
+from datetime import datetime
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 
 class Extraction(BaseModel):
-    """Represents the Extraction payload."""
+    """Represents the payload of an extraction request."""
 
     tag: str = Field(
         description="Data collection tag for grouping.",
@@ -27,11 +27,3 @@ class Extraction(BaseModel):
             if data["begin"] >= data["end"]:
                 raise ValueError("begin must be lower than end.")
             return data
-
-    @field_validator("end")
-    @classmethod
-    def end_le_now(cls, end: datetime) -> datetime:
-        """End is lower than or equal to now."""
-        if end > datetime.now(timezone.utc):
-            raise ValueError("end must be lower than or equal to now.")
-        return end
