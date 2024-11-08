@@ -39,4 +39,4 @@ def stream_events():
         return error.json(), 400
     else:
         job = worker.to_work_queue(extraction)
-        return dict(extraction=extraction, task_url=f"/jobs/{job.id}"), 202
+        return dict(extraction=extraction, job_url=f"/jobs/{job.id}"), 202
