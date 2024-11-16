@@ -19,6 +19,8 @@ class Extraction(BaseModel):
     begin: datetime = Field(description="Extraction start date and time in ISO 8601.")
     end: datetime = Field(description="Extraction end date and time in ISO 8601.")
 
+    meta: dict | None = Field(description="Extraction metadata.")
+
     @model_validator(mode='before')
     @classmethod
     def begin_lt_end(cls, data: dict) -> dict:
