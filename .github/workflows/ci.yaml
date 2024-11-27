@@ -1,10 +1,10 @@
-name: Extraction API CI
+name: Extractors CI
 
 on:
   push:
 
 jobs:
-  extraction-api-ci:
+  extractors-ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -24,10 +24,10 @@ jobs:
       - name: Setup Poetry config
         run: |
           python -m poetry config virtualenvs.in-project true
-      - name: Install Extraction API Dependencies
+      - name: Install Extractors Dependencies
         run: |
-          python -m poetry install --directory ./pipeline/extraction_api --no-root --only main
-      - name: Run Extraction API Tests
+          python -m poetry install --directory ./pipeline/extractors --only main
+      - name: Run Extractors Tests
         run: |
-          cd pipeline/extraction_api
+          cd pipeline/extractors
           .venv/bin/python -m pytest --disable-warnings --verbose
