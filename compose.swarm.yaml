@@ -1,14 +1,13 @@
 services:
 
-  extraction-worker:
+  extractors:
     deploy:
-      replicas: 24
+      replicas: 8
       resources:
         limits:
           cpus: '1'
-          memory: 512m
+          memory: 128m
       placement:
-        max_replicas_per_node: 8
         constraints:
           - node.role==worker
 

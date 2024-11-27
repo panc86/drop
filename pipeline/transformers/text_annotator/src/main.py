@@ -52,7 +52,7 @@ def consume_raw_events():
     model = annotator.get_model()
     batch = []
     try:
-        consumer.subscribe(["raw_texts"])
+        consumer.subscribe(["events"])
         while True:
             msg = consumer.poll(1.0)
             if msg is None:

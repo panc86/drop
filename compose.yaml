@@ -3,35 +3,12 @@ networks:
 
 services:
 
-  extraction-api:
-    command: uwsgi --chdir ./src --wsgi-file main.py --callable app --http :5000
-    depends_on:
-      - redis
-    healthcheck:
-      test: ['CMD-SHELL', 'timeout 5s bash -c ":> /dev/tcp/$${HOSTNAME}/5000"']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extraction-api:0.1.0
-    networks:
-      backend:
-    ports:
-      - 5000:5000
-
-  extraction-worker:
-    command: rq worker --path ./src --url redis://redis:6379/0 --with-scheduler
-    depends_on:
-      - redis
+  extractors:
+    command: --debug
     environment:
       http_proxy:
       https_proxy:
-      KAFKA_BROKER_URL: broker:29092
-    healthcheck:
-      test: ['CMD', 'rq', 'info', '--url', 'redis://redis:6379/0']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extraction-api:0.1.0
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extractors:0.1.0
     networks:
       backend:
 
@@ -57,20 +34,6 @@ services:
     volumes:
       - geocode-db:/usr/src/app/src/core/data
   
-  redis:
-    environment:
-      REDIS_ARGS: --save 60 1000
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-    image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
-    networks:
-      backend:
-    volumes:
-      - redis-db:/data
-
   zookeeper:
     environment:
       ZOOKEEPER_CLIENT_PORT: 2181
@@ -121,5 +84,3 @@ volumes:
     name: annotation-db
   geocode-db:
     name: geocode-db
-  redis-db:
-    name: redis-db

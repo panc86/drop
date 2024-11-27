@@ -3,7 +3,7 @@ set -e
 
 CWD=$(cd $(dirname $0); pwd)
 REGISTRY="${DOCKER_REGISTRY:-index.docker.io}"
-IMAGE="${REGISTRY}/pipeline/extraction-api:$(<$CWD/src/RELEASE)"
+IMAGE="${REGISTRY}/pipeline/extractors:${1:-local}"
 
 echo Building $IMAGE
 docker build \
