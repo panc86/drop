@@ -6,16 +6,14 @@ from typing import Iterable
 from confluent_kafka import Consumer, Producer
 
 
-IS_DOCKER_ENV = os.path.exists("/.dockerenv")
-KAFKA_BROKER_URL = os.environ.get(
-    "KAFKA_BROKER_URL", "broker:29092" if IS_DOCKER_ENV else "localhost:9092"
-)
+logger = logging.getLogger(__name__)
+bootstrap_servers = f'{os.environ.get("KAFKA_BROKER_HOST", "localhost")}:9092'
 
 
-def log_events(events: Iterable[bytes], topic: str = "events"):
+def log_events(events: Iterable[bytes]):
     producer = Producer(
         {
-            "bootstrap.servers": KAFKA_BROKER_URL,
+            "bootstrap.servers": bootstrap_servers,
             "acks": "all",
         }
     )
@@ -25,38 +23,38 @@ def log_events(events: Iterable[bytes], topic: str = "events"):
             topic=event.topic(), event=json.loads(event.value()), error=error
         )
         if error is not None:
-            logging.error(msg)
-        logging.debug(msg)
+            logger.error(msg)
+        logger.debug(msg)
 
     for event in events:
-        producer.produce(topic=topic, value=event, callback=delivery_callback)
+        producer.produce(topic="events", value=event, callback=delivery_callback)
     # Block until the messages are sent.
     producer.poll(10000)
     producer.flush()
 
 
 def listen_for_incoming_extractions() -> Iterable[dict]:
-    logging.info("listening for incoming extractions...")
+    logger.info("listening for incoming extractions...")
     consumer = Consumer(
         {
-            "bootstrap.servers": KAFKA_BROKER_URL,
+            "bootstrap.servers": bootstrap_servers,
             "group.id": "extractors",
             "auto.offset.reset": "earliest",
         }
     )
+    consumer.subscribe(["extractions"])
     try:
-        consumer.subscribe(["extractions"])
         while True:
             msg = consumer.poll(1.0)
             if msg is None:
                 pass
             elif msg.error():
-                logging.error(msg.error())
+                logger.error(msg.error())
             else:
                 yield json.loads(msg.value())
     except KeyboardInterrupt:
         print()
-        logging.warning("Interrupted")
+        logger.warning("Interrupted")
     finally:
         # Leave group and commit final offsets
         consumer.close()

@@ -1,7 +1,4 @@
-from collections import Counter
 from typing import Iterable
-
-import pandas
 
 
 def parse_location_tags(
@@ -55,5 +52,3 @@ def get_gpes(tags):
 
 def titlecase(texts: Iterable[str]) -> Iterable[str]:
     return [text.title() for text in texts]
-
-

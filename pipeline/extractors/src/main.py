@@ -2,7 +2,7 @@ from argparse import ArgumentParser
 import logging.config
 import os
 
-from app import annotator, broker
+from app import jobs, broker
 
 
 file_dir = os.path.dirname(__file__)
@@ -11,9 +11,9 @@ log_file = os.path.join(file_dir, "logging.ini")
 log_defaults = {'logfilename': os.path.join(file_dir, "log", "errors.log")}
 logging.config.fileConfig(log_file, defaults=log_defaults)
 
-    
+
 def main():
-    parser = ArgumentParser(description="Annotate events in batches.")
+    parser = ArgumentParser(description="Extract events from data sources.")
     parser.add_argument(
         "--debug", action="store_true", default=False, help="Run in debug mode."
     )
@@ -28,14 +28,11 @@ def main():
     if args.debug:
         logger.setLevel(logging.DEBUG)
     if args.listen:
-        model = annotator.get_model()
-        for batch in broker.consume_batched_events():
-            broker.log_events(model(batch))
-            #job = jobs.enqueue_job(extraction)
-            #logger.info(dict(job=dict(id=job.id, status=job.get_status()), extraction=extraction))
+        for extraction in broker.listen_for_incoming_extractions():
+            job = jobs.enqueue_job(extraction)
+            logger.info(dict(job=dict(id=job.id, status=job.get_status()), extraction=extraction))
     if args.worker:
-        pass
-        #jobs.worker.work()
+        jobs.worker.work()
 
 
 if __name__ == "__main__":

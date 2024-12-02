@@ -1,7 +1,7 @@
 import numpy
 import os
 
-from core.cleaner import clean_text
+from app.cleaner import clean_text
 
 
 embeddings_dir = os.path.join(os.path.dirname(__file__), "data")
@@ -16,6 +16,7 @@ def merge_predictions(original: list[dict], impacts: list[float], floods: list[f
 
 
 def get_model():
+    # load models at runtime to speedup tests execution
     import laserembeddings
     import tensorflow as tf
 

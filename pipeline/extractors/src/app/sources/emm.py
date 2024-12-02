@@ -8,6 +8,9 @@ from xml.etree import ElementTree
 import requests
 
 
+logger = logging.getLogger(__name__)
+
+
 def build_request_url(extraction: dict) -> str:
     date_format = "%Y-%m-%dT%H:%M:%SZ"
     url = "https://emm.newsbrief.eu/rss/rss?{params}"
@@ -46,13 +49,12 @@ def parse_articles(articles: bytes) -> Iterable[dict]:
 class EMM:
     def fetch_data(self, extraction: dict) -> Iterable[dict]:
         response = download_xml_data(build_request_url(extraction))
-        if response.status_code == 200:
-            for article in parse_articles(response.content):
-                yield dict(
-                    **article, metadata=dict(extraction=extraction, source="emm")
-                )
-        else:
-            # errors are logged to file for manual extraction
-            logging.error(
+        if response.status_code != 200:
+            logger.error(
                 dict(extraction=extraction, error=response.reason, url=response.url)
+            )
+            return
+        for article in parse_articles(response.content):
+            yield dict(
+                **article, metadata=dict(extraction=extraction, source="emm")
             )

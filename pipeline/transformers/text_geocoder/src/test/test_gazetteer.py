@@ -1,7 +1,6 @@
 import pandas
 
-# from core.gazetteer import filter_places_by_buffer
-from core.gazetteer import match_geo_political_entities
+from app.gazetteer import match_geo_political_entities
 
 
 # test gazetteer
@@ -27,15 +26,6 @@ g = pandas.DataFrame(
         },
     ]
 )
-#
-# def test_filter_places_by_buffer():
-#    latitude = -8.45
-#    longitude = 115.61667
-#    result = filter_places_by_buffer(g, latitude, longitude, radius=50)
-#    assert len(result) == 1
-#    assert (result.loc[0, "latitude"] == -8.44869) and (
-#        result.loc[0, "longitude"] == 115.60621
-#    )
 
 
 def test_match_geo_political_entities_unfiltered_gazetteer():

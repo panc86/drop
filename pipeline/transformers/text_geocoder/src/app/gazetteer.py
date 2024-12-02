@@ -12,7 +12,9 @@ class OutOfBoundError(Exception):
     pass
 
 
-def load_gazetteer(filepath: str) -> pandas.DataFrame:
+def load_gazetteer(
+    filepath: str = "https://github.com/panc86/gazetteer/releases/download/v0.3.0/gazetteer.json.zip",
+) -> pandas.DataFrame:
     g = pandas.read_json(filepath, orient="records", lines=True).dropna(
         axis=1, how="all"
     )

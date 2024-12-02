@@ -1,4 +1,4 @@
-from core.model import merge_predictions
+from app.annotator import merge_predictions
 
 
 data = [

@@ -1,83 +1,108 @@
-networks:
-  backend:
-
 services:
 
-  extractors:
-    command: --debug
+  redis:
     environment:
-      http_proxy:
-      https_proxy:
-    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extractors:0.1.0
-    networks:
-      backend:
-
-  text-annotator:
-    environment:
-      http_proxy:
-      https_proxy:
-      KAFKA_BROKER_URL: broker:29092
-    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-annotator:0.1.0
-    networks:
-      backend:
-    volumes:
-      - annotation-db:/usr/src/app/src/core/data
-
-  text-geocoder:
-    environment:
-      http_proxy:
-      https_proxy:
-      KAFKA_BROKER_URL: broker:29092
-    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-geocoder:0.1.0
-    networks:
-      backend:
-    volumes:
-      - geocode-db:/usr/src/app/src/core/data
-  
-  zookeeper:
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
+      REDIS_ARGS: --save 60 1000
     healthcheck:
-      test: ['CMD', 'bash', '-c', "echo 'ruok' | nc localhost 2181"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    hostname: zookeeper
-    image: ${DOCKER_REGISTRY:-index.docker.io}/confluentinc/cp-zookeeper:7.4.0
-    networks:
-      backend:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    image: ${DOCKER_REGISTRY:-index.docker.io}/redis:7.0.5-alpine
     ports:
-      - 2181:2181
+      - "6379:6379"
 
-  broker:
+  extractors-listener:
+    command: --listen
     depends_on:
-      - zookeeper
+      - redis
     environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://broker:29092,PLAINTEXT_HOST://${KAFKA_BROKER_HOST:-localhost}:9092
-      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
-      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_LICENSE_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_CONFLUENT_BALANCER_TOPIC_REPLICATION_FACTOR: 1
-      KAFKA_METRIC_REPORTERS: io.confluent.metrics.reporter.ConfluentMetricsReporter
-      CONFLUENT_METRICS_REPORTER_BOOTSTRAP_SERVERS: broker:29092
-      CONFLUENT_METRICS_REPORTER_TOPIC_REPLICAS: 1
-    healthcheck:
-      test: [ "CMD", "bash", "-c", 'nc -z localhost 9092' ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    hostname: broker
-    image: ${DOCKER_REGISTRY:-index.docker.io}/confluentinc/cp-server:7.4.0
-    networks:
-      backend:
-    ports:
-      - 9092:9092
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_HOST:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extractors:0.1.0
+    network_mode: host
+
+  extractors-worker:
+    command: --worker
+    depends_on:
+      - redis
+    deploy:
+      replicas: 8
+      resources:
+        limits:
+          cpus: '2'
+          memory: 128m
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_HOST:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/extractors:0.1.0
+    network_mode: host
+
+  text-annotator-listener:
+    command: --listen
+    depends_on:
+      - redis
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_HOST:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-annotator:0.1.0
+    network_mode: host
+    volumes:
+      - annotation-db:/usr/src/app/src/app/data
+
+  #text-annotator-worker:
+  #  command: --worker
+  #  depends_on:
+  #    - redis
+  #  deploy:
+  #    replicas: 4
+  #    resources:
+  #      limits:
+  #        cpus: '8'
+  #        memory: 4G
+  #  environment:
+  #    http_proxy:
+  #    https_proxy:
+  #    KAFKA_BROKER_HOST:
+  #  image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-annotator:0.1.0
+  #  network_mode: host
+  #  volumes:
+  #    - annotation-db:/usr/src/app/src/app/data
+
+  text-geocoder-listener:
+    command: --listen
+    depends_on:
+      - redis
+    environment:
+      http_proxy:
+      https_proxy:
+      KAFKA_BROKER_HOST:
+    image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-geocoder:0.1.0
+    network_mode: host
+    volumes:
+      - geocode-db:/usr/src/app/src/app/data
+
+  #text-geocoder-worker:
+  #  command: --worker
+  #  depends_on:
+  #    - redis
+  #  deploy:
+  #    replicas: 4
+  #    resources:
+  #      limits:
+  #        cpus: '8'
+  #        memory: 8G
+  #  environment:
+  #    http_proxy:
+  #    https_proxy:
+  #    KAFKA_BROKER_HOST:
+  #  image: ${DOCKER_REGISTRY:-index.docker.io}/pipeline/transformers/text-geocoder:0.1.0
+  #  network_mode: host
+  #  volumes:
+  #    - geocode-db:/usr/src/app/src/app/data
 
 volumes:
   annotation-db:

@@ -1,0 +1,1 @@
+2024-12-02 11:51:33,526 app.jobs {'job': {'id': 'd2fac76c-be90-40be-b29d-d68cb07961e0', 'args': ({'tag': 'test-kafka-rest-event-produce', 'keywords': 'flood', 'begin': '2024-10-30T06:00:00+01:00', 'end': '2024-10-30T12:00:00+01:00'},)}, 'error': {'type': <class 'xml.etree.ElementTree.ParseError'>, 'value': ParseError('no element found: line 1, column 0')}}
