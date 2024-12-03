@@ -6,7 +6,7 @@ to predict the type, severity, and geo location of disasters events worldwide.
 It leverages event-driven, and microservice architectures, and multilingual NER 
 models to crawl, predict, and geocode historical, and realtime events at scale.
 
-## Prerequisites
+## Requirements
 
 - Linux OS
 - 8G RAM
@@ -16,25 +16,24 @@ models to crawl, predict, and geocode historical, and realtime events at scale.
 
 ## Build
 
+Build pipeline steps
+
 ```shell
 bash ./pipeline/build.sh
 ```
 
 ## Deploy
 
-Single node deployment
+Single node
 
 ```shell
-export KAFKA_BROKER_HOST=<hostname/ip>
 docker compose up
 ```
 
-Multi node deployment
+Multi node
 
 ```shell
-export KAFKA_BROKER_HOST=<hostname/ip>
-docker stack deploy --detach=false -c compose.yaml -c compose.swarm.yaml drop
+docker stack deploy --detach=false -c compose.yaml -c compose.placement.yaml drop
 ```
 
-> More than 1 node running Docker in Swarm mode is required to run this deployment.
-> For more info, read the [Docker Documentation](https://docs.docker.com/engine/swarm/).
+> For more info on Docker Swarm, read the [Docker Documentation](https://docs.docker.com/engine/swarm/).

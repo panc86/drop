@@ -54,5 +54,5 @@ COPY --from=builder /usr/src/app /usr/src/app
 WORKDIR /usr/src/app
 ENV PATH="/usr/src/app/.venv/bin:$PATH"
 
-ENTRYPOINT [ "python", "./src/run.py" ]
+ENTRYPOINT [ "python", "./src/main.py" ]
 CMD [ "--help" ]

@@ -3,7 +3,7 @@ set -e
 
 CWD=$(cd $(dirname $0); pwd)
 
-EMBEDDINGS_DIR=$CWD/core/data
+EMBEDDINGS_DIR=$CWD/app/data
 mkdir -p $EMBEDDINGS_DIR
 
 # download embeddings from laserembeddings repo

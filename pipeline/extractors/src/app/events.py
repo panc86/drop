@@ -1,6 +1,4 @@
 import json
-import logging
-from collections import defaultdict
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any, Optional, Iterable, Protocol
@@ -41,18 +39,10 @@ class Source(Protocol):
 
 
 # list of available data sources
-sources: dict[str, Source] = dict(emm=EMM())
+sources: list[Source] = [EMM(),]
 
 
 def fetch_events(extraction: dict) -> Iterable[bytes]:
-    events_by_source = defaultdict(int)
-    for name, source in sources.items():
+    for source in sources:
         for data in source.fetch_data(extraction):
-            try:
-                event = Event(**data)
-            except TypeError as error:
-                logging.error(dict(error=str(error), data=data))
-            else:
-                yield event.serialize()
-                events_by_source[name] += 1
-    logging.info(dict(events_by_source=dict(events_by_source), extraction=extraction))
+            yield Event(**data).serialize()

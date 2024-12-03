@@ -3,7 +3,7 @@ set -e
 
 CWD=$(cd $(dirname $0); pwd)
 REGISTRY="${DOCKER_REGISTRY:-index.docker.io}"
-IMAGE="${REGISTRY}/pipeline/transformers/text-geocoder:$(<$CWD/src/RELEASE)"
+IMAGE="${REGISTRY}/pipeline/transformers/text-geocoder:${1-:local}"
 
 echo Building $IMAGE
 docker build \

@@ -1,4 +1,4 @@
-from core.tags import get_gpes, parse_location_tags
+from app.tags import get_gpes, parse_location_tags
 
 
 def test_return_a_list_type():

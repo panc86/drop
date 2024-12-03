@@ -56,10 +56,10 @@ ENV PATH="/usr/src/app/.venv/bin:$PATH"
 
 # reduce TensorFlow verbosity
 ENV TRANSFORMERS_VERBOSITY=error
-ENV TF_CPP_MIN_LOG_LEVELv=3
+ENV TF_CPP_MIN_LOG_LEVEL=3
 
 # volume for annotation models
-VOLUME /usr/src/app/src/core/data 
+VOLUME /usr/src/app/src/app/data 
 
-ENTRYPOINT ["./src/entrypoint.sh"]
-CMD ["--help"]
+ENTRYPOINT [ "./src/entrypoint.sh" ]
+CMD [ "--help" ]

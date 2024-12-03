@@ -1,4 +1,4 @@
-from core.model import merge_geocodes
+from app.geocoder import merge_geocodes
 
 
 def test_merge_predictions():
