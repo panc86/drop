@@ -1,4 +1,5 @@
 import logging
+import os
 
 import redis
 import rq
@@ -9,7 +10,7 @@ from app import broker, events
 logger = logging.getLogger(__name__)
 
 
-db = redis.Redis()
+db = redis.from_url(os.environ.get("REDIS_URL", "redis://"))
 queue = rq.Queue(connection=db)
 worker = rq.Worker([queue], connection=db)
 

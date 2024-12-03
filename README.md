@@ -22,26 +22,17 @@ Build pipeline steps
 bash ./pipeline/build.sh
 ```
 
-Starts Kafka components
-
-```shell
-export KAFKA_BROKER_HOST=<hostname/ip>
-docker compose --file compose.kafka.yaml up
-```
-
 ## Deploy
 
 Single node
 
 ```shell
-export KAFKA_BROKER_HOST=<hostname/ip>
 docker compose up
 ```
 
 Multi node
 
 ```shell
-export KAFKA_BROKER_HOST=<hostname/ip>
 docker stack deploy --detach=false -c compose.yaml -c compose.placement.yaml drop
 ```
 

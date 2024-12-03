@@ -8,7 +8,8 @@ from confluent_kafka import Consumer, Producer
 
 
 logger = logging.getLogger(__name__)
-bootstrap_servers = f'{os.environ.get("KAFKA_BROKER_HOST", "localhost")}:9092'
+
+bootstrap_servers = os.environ.get("KAFKA_BOOTSTRAP_SERVERS", "localhost:9092")
 
 
 def json_serial(obj: Any):

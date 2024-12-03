@@ -1,21 +1,28 @@
 services:
 
-  extractors:
+  redis:
+    deploy:
+      mode: global
+      placement:
+        constraints:
+          - node.role==worker
+
+  extractors-worker:
     deploy:
       placement:
         constraints:
           - node.role==worker
 
-  text-annotator:
-    deploy:
-      placement:
-        max_replicas_per_node: 4
-        constraints:
-          - node.role==worker
+  #text-annotator-worker:
+  #  deploy:
+  #    placement:
+  #      max_replicas_per_node: 4
+  #      constraints:
+  #        - node.role==worker
 
-  text-geocoder:
-    deploy:
-      placement:
-        max_replicas_per_node: 2
-        constraints:
-          - node.role==worker
+  #text-geocoder-worker:
+  #  deploy:
+  #    placement:
+  #      max_replicas_per_node: 2
+  #      constraints:
+  #        - node.role==worker
