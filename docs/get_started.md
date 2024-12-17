@@ -23,11 +23,26 @@ communicate with other nodes in the cluster:
 
 Clone the [source code](https://github.com/panc86/drop.git).
 
-## Deploy Stack
+## Build
 
-{: .warning}
-First execution time may take few minutes to complete.
+Build pipeline steps
 
 ```shell
-bash deploy.sh
+bash ./pipeline/build.sh
 ```
+
+## Deploy
+
+Single node
+
+```shell
+docker compose up
+```
+
+Multi node
+
+```shell
+docker stack deploy --detach=false -c compose.yaml -c compose.placement.yaml drop
+```
+
+> For more info on Docker Swarm, read the [Docker Documentation](https://docs.docker.com/engine/swarm/).
